@@ -319,4 +319,62 @@ public class Administrador extends Usuario {
             cafe.eliminarTorneo(torneo);
         }
     }
+    public Empleado registrarEmpleado(
+            String documentoIdentidad,
+            String nombre,
+            String correoElectronico,
+            String login,
+            String password,
+            String codigoEmpleado,
+            String cargo)
+    {
+        if (cargo == null)
+        {
+            return null;
+        }
+
+        if (cargo.equalsIgnoreCase("MESERO"))
+        {
+            return new Mesero(documentoIdentidad, nombre, correoElectronico, login, password, codigoEmpleado);
+        }
+        else if (cargo.equalsIgnoreCase("COCINERO"))
+        {
+            return new Cocinero(documentoIdentidad, nombre, correoElectronico, login, password, codigoEmpleado);
+        }
+
+        return null;
+    }
+
+    public boolean registrarEmpleadoEnSistema(
+            SistemasDulcesDados sistema,
+            String documentoIdentidad,
+            String nombre,
+            String correoElectronico,
+            String login,
+            String password,
+            String codigoEmpleado,
+            String cargo)
+    {
+        if (sistema == null)
+        {
+            return false;
+        }
+
+        Empleado empleado = registrarEmpleado(
+                documentoIdentidad,
+                nombre,
+                correoElectronico,
+                login,
+                password,
+                codigoEmpleado,
+                cargo
+        );
+
+        if (empleado == null)
+        {
+            return false;
+        }
+
+        return sistema.agregarUsuario(empleado);
+    }
 }

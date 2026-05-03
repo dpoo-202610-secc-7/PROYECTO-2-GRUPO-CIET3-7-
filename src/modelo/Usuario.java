@@ -2,7 +2,7 @@ package modelo;
 
 public abstract class Usuario
 {
-	private String documentoIdentidad;
+    private String documentoIdentidad;
     private String nombre;
     private String correoElectronico;
     private String login;
@@ -24,12 +24,27 @@ public abstract class Usuario
 
     public void cerrarSesion()
     {
-        // Se maneja después desde SistemaDulcesDados
+        System.out.println("Sesión cerrada para el usuario: " + login);
     }
 
     public boolean validarPassword(String password)
     {
         return this.password.equals(password);
+    }
+
+    public String getTipoUsuario()
+    {
+        return this.getClass().getSimpleName();
+    }
+
+    public String convertirAArchivo()
+    {
+        return getTipoUsuario() + ";" 
+                + documentoIdentidad + ";" 
+                + nombre + ";" 
+                + correoElectronico + ";" 
+                + login + ";" 
+                + password;
     }
 
     public String getDocumentoIdentidad()

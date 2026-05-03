@@ -298,4 +298,103 @@ public class SistemasDulcesDados
         }
         return false;
     }
+    
+    public boolean registrarCliente(
+            String documentoIdentidad,
+            String nombre,
+            String correoElectronico,
+            String login,
+            String password)
+    {
+        if (documentoIdentidad == null || nombre == null || correoElectronico == null || login == null || password == null)
+        {
+            return false;
+        }
+
+        if (documentoIdentidad.trim().isEmpty() || nombre.trim().isEmpty() || correoElectronico.trim().isEmpty()
+                || login.trim().isEmpty() || password.trim().isEmpty())
+        {
+            return false;
+        }
+
+        if (buscarUsuarioPorLogin(login) != null)
+        {
+            return false;
+        }
+
+        Cliente cliente = new Cliente(documentoIdentidad, nombre, correoElectronico, login, password);
+        usuarios.add(cliente);
+        guardarDatos();
+
+        return true;
+    }
+    
+    public Usuario iniciarSesion(String login, String password)
+    {
+        return autenticarUsuario(login, password);
+    }
+    
+    public boolean validarCredenciales(String login, String password)
+    {
+        Usuario usuario = buscarUsuarioPorLogin(login);
+
+        if (usuario == null)
+        {
+            return false;
+        }
+
+        return usuario.validarPassword(password);
+    }
+    
+    public boolean registrarEmpleadoPorAdministrador(
+            String documentoIdentidad,
+            String nombre,
+            String correoElectronico,
+            String login,
+            String password,
+            String codigoEmpleado,
+            String cargo)
+    {
+        if (!(sesionActual instanceof Administrador))
+        {
+            return false;
+        }
+
+        if (documentoIdentidad == null || nombre == null || correoElectronico == null 
+            || login == null || password == null || codigoEmpleado == null || cargo == null)
+        {
+            return false;
+        }
+
+        if (documentoIdentidad.length() == 0 || nombre.length() == 0 || correoElectronico.length() == 0
+                || login.length() == 0 || password.length() == 0 || codigoEmpleado.length() == 0 || cargo.length() == 0)
+        {
+            return false;
+        }
+
+        if (buscarUsuarioPorLogin(login) != null)
+        {
+            return false;
+        }
+
+        Empleado empleado = null;
+
+        if (cargo.equalsIgnoreCase("MESERO"))
+        {
+            empleado = new Mesero(documentoIdentidad, nombre, correoElectronico, login, password, codigoEmpleado);
+        }
+        else if (cargo.equalsIgnoreCase("COCINERO"))
+        {
+            empleado = new Cocinero(documentoIdentidad, nombre, correoElectronico, login, password, codigoEmpleado);
+        }
+        else
+        {
+            return false;
+        }
+
+        usuarios.add(empleado);
+        guardarDatos();
+
+        return true;
+    }
 }

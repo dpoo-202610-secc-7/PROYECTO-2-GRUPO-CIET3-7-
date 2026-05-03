@@ -3,19 +3,20 @@ package modelo;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Cliente extends Usuario {
-	private int puntosFidelidad;
+public class Cliente extends Usuario 
+{
+    private int puntosFidelidad;
     private List<JuegoMesa> juegosFavoritos;
-    private double bonoDescuentoGanado; // 0.0 si no tiene bono activo
-    private double premioMonetarioPendiente; // monto ganado en torneo competitivo
+    private double bonoDescuentoGanado;
+    private double premioMonetarioPendiente;
 
     public Cliente(String documentoIdentidad, String nombre, String correoElectronico, String login, String password)
     {
         super(documentoIdentidad, nombre, correoElectronico, login, password);
         this.puntosFidelidad = 0;
         this.juegosFavoritos = new ArrayList<JuegoMesa>();
-        this.bonoDescuentoGanado        = 0;
-        this.premioMonetarioPendiente   = 0;
+        this.bonoDescuentoGanado = 0;
+        this.premioMonetarioPendiente = 0;
     }
 
     public ReservaMesa crearReserva(Mesa mesa, String fechaHora, int numeroPersonas, boolean hayNinosMenores5, boolean hayMenoresEdad)
@@ -39,6 +40,7 @@ public class Cliente extends Usuario {
     public Venta comprarProductos(List<ItemVenta> items, double propina)
     {
         Venta venta = new Venta(null, TipoVenta.CAFETERIA, 0, propina, this, null);
+
         if (items != null)
         {
             for (ItemVenta item : items)
@@ -46,59 +48,39 @@ public class Cliente extends Usuario {
                 venta.agregarItem(item);
             }
         }
+
         return venta;
     }
 
-    /**
-     * Aplica el bono de descuento ganado en un torneo amistoso a una venta.
-     * El bono se consume al aplicarse — no es acumulable.
-     * Retorna true si había bono activo y se aplicó, false si no había ninguno.
-     */
-    public boolean aplicarBonoAVenta(Venta venta)
+    public void agregarJuegoFavorito(JuegoMesa juego)
     {
-        if (venta == null || !tieneBonoActivo())
+        if (juego != null && !juegosFavoritos.contains(juego))
         {
-            return false;
-        }
-
-        double porcentaje = usarBonoDescuento(); // obtiene y pone en 0
-        venta.aplicarDescuentoPorcentaje(porcentaje);
-        return true;
-    }
-
-    /**
-     * Reemplaza el stub anterior.
-     * Permite aplicar el bono usando un código de descuento de empleado
-     * o el bono ganado en torneo. En esta entrega solo aplica el bono
-     * de torneo si el código coincide con "BONO_TORNEO".
-     */
-    public void aplicarCodigoDescuento(String codigo, Venta venta)
-    {
-        if (codigo == null || venta == null)
-        {
-            return;
-        }
-
-        if (codigo.equalsIgnoreCase("BONO_TORNEO") && tieneBonoActivo())
-        {
-            aplicarBonoAVenta(venta);
+            juegosFavoritos.add(juego);
         }
     }
 
-    public void usarPuntosFidelidad(double valor)
+    public void eliminarJuegoFavorito(JuegoMesa juego)
     {
-        puntosFidelidad -= (int) valor;
+        if (juego != null)
+        {
+            juegosFavoritos.remove(juego);
+        }
     }
 
-    public void acumularPuntos(double valorCompra)
+    public List<JuegoMesa> consultarJuegosFavoritos()
     {
-        puntosFidelidad += (int) valorCompra;
+        return juegosFavoritos;
+    }
+
+    public boolean tieneJuegoFavorito(JuegoMesa juego)
+    {
+        return juegosFavoritos.contains(juego);
     }
 
     public void recibirBonoDescuento(double porcentaje)
     {
-        // El bono no es acumulable: solo se guarda si no hay uno activo
-        if (bonoDescuentoGanado == 0)
+        if (porcentaje > 0)
         {
             bonoDescuentoGanado = porcentaje;
         }
@@ -112,47 +94,62 @@ public class Cliente extends Usuario {
     public double usarBonoDescuento()
     {
         double bono = bonoDescuentoGanado;
-        bonoDescuentoGanado = 0; // se consume al usarse
+        bonoDescuentoGanado = 0;
         return bono;
+    }
+
+    public boolean aplicarBonoAVenta(Venta venta)
+    {
+        if (venta == null || !tieneBonoActivo())
+        {
+            return false;
+        }
+
+        double porcentaje = usarBonoDescuento();
+        venta.aplicarDescuentoPorcentaje(porcentaje);
+        return true;
+    }
+
+    public void aplicarCodigoDescuento(String codigo, Venta venta)
+    {
+        if (codigo == null || venta == null)
+        {
+            return;
+        }
+
+        if (codigo.equalsIgnoreCase("BONO_TORNEO"))
+        {
+            aplicarBonoAVenta(venta);
+        }
+    }
+
+    public void acumularPuntos(double valorCompra)
+    {
+        if (valorCompra > 0)
+        {
+            puntosFidelidad += (int) valorCompra;
+        }
+    }
+
+    public void usarPuntosFidelidad(int puntos)
+    {
+        if (puntos > 0 && puntos <= puntosFidelidad)
+        {
+            puntosFidelidad -= puntos;
+        }
     }
 
     public void registrarPremioMonetario(double monto)
     {
-        premioMonetarioPendiente += monto;
-    }
-
-    public double getPremioMonetarioPendiente()        { return premioMonetarioPendiente; }
-    public void   setPremioMonetarioPendiente(double m){ this.premioMonetarioPendiente = m; }
-
-    public double getBonoDescuentoGanado()             { return bonoDescuentoGanado; }
-    public void   setBonoDescuentoGanado(double bono)  { this.bonoDescuentoGanado = bono; }
-
-    public int consultarPuntosFidelidad()
-    {
-        return puntosFidelidad;
+        if (monto > 0)
+        {
+            premioMonetarioPendiente += monto;
+        }
     }
 
     public List<Venta> consultarHistorialCompras()
     {
         return new ArrayList<Venta>();
-    }
-
-    public void agregarJuegoFavorito(JuegoMesa juego)
-    {
-        if (juego != null && !juegosFavoritos.contains(juego))
-        {
-            juegosFavoritos.add(juego);
-        }
-    }
-
-    public void eliminarJuegoFavorito(JuegoMesa juego)
-    {
-        juegosFavoritos.remove(juego);
-    }
-
-    public List<JuegoMesa> consultarJuegosFavoritos()
-    {
-        return juegosFavoritos;
     }
 
     public int getPuntosFidelidad()
@@ -164,5 +161,37 @@ public class Cliente extends Usuario {
     {
         this.puntosFidelidad = puntosFidelidad;
     }
-    
+
+    public double getBonoDescuentoGanado()
+    {
+        return bonoDescuentoGanado;
+    }
+
+    public void setBonoDescuentoGanado(double bonoDescuentoGanado)
+    {
+        this.bonoDescuentoGanado = bonoDescuentoGanado;
+    }
+
+    public double getPremioMonetarioPendiente()
+    {
+        return premioMonetarioPendiente;
+    }
+
+    public void setPremioMonetarioPendiente(double premioMonetarioPendiente)
+    {
+        this.premioMonetarioPendiente = premioMonetarioPendiente;
+    }
+
+    public String convertirAArchivo()
+    {
+        return "CLIENTE;" 
+                + getDocumentoIdentidad() + ";" 
+                + getNombre() + ";" 
+                + getCorreoElectronico() + ";" 
+                + getLogin() + ";" 
+                + getPassword() + ";" 
+                + puntosFidelidad + ";" 
+                + bonoDescuentoGanado + ";" 
+                + premioMonetarioPendiente;
+    }
 }

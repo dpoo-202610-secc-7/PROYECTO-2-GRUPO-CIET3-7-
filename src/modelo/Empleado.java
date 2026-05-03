@@ -164,4 +164,88 @@ public abstract class Empleado extends Usuario {
     {
         this.solicitudesCambioTurno = solicitudesCambioTurno;
     }
+    
+    public void agregarTurno(Turno turno)
+    {
+        if (turno != null && !turnos.contains(turno))
+        {
+            turnos.add(turno);
+        }
+    }
+
+    public void eliminarTurno(Turno turno)
+    {
+        if (turno != null)
+        {
+            turnos.remove(turno);
+        }
+    }
+
+    public boolean tieneTurnoAsignado(DiaSemana dia, String hora)
+    {
+        for (Turno turno : turnos)
+        {
+            if (turno.estaActivoEn(dia, hora))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public boolean puedeTrabajarEn(DiaSemana dia, String hora)
+    {
+        return enTurno && tieneTurnoAsignado(dia, hora);
+    }
+
+    public boolean puedeRealizarAccionEmpleado(DiaSemana dia, String hora)
+    {
+        return puedeTrabajarEn(dia, hora);
+    }
+
+    public boolean tieneConflictoConTurno(Turno nuevoTurno)
+    {
+        if (nuevoTurno == null)
+        {
+            return false;
+        }
+
+        for (Turno turno : turnos)
+        {
+            if (turno.solapaCon(nuevoTurno))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public boolean agregarTurnoSiNoHayConflicto(Turno nuevoTurno)
+    {
+        if (nuevoTurno == null)
+        {
+            return false;
+        }
+
+        if (tieneConflictoConTurno(nuevoTurno))
+        {
+            return false;
+        }
+
+        turnos.add(nuevoTurno);
+        return true;
+    }
+
+    public String convertirAArchivo()
+    {
+        return "EMPLEADO;"
+                + getDocumentoIdentidad() + ";"
+                + getNombre() + ";"
+                + getCorreoElectronico() + ";"
+                + getLogin() + ";"
+                + getPassword() + ";"
+                + codigoEmpleado;
+    }
 }

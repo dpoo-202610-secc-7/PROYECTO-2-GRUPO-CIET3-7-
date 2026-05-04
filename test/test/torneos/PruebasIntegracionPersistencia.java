@@ -30,7 +30,7 @@ public class PruebasIntegracionPersistencia
         juego = new JuegoMesa("Ajedrez", 2, "Clasico", 2, 4, 1, false, CategoriaJuego.TABLERO);
         for (int i = 0; i < 15; i++)
         {
-            CopiaJuegoPrestamo copia = new CopiaJuegoPrestamo(EstadoJuego.NUEVO, false, juego);
+            CopiaJuegoPrestamo copia = new CopiaJuegoPrestamo(EstadoJuego.NUEVO, true, juego);
             juego.agregarCopia(copia);
         }
         sistema.getCafe().agregarJuegoCatalogo(juego);
@@ -185,7 +185,7 @@ public class PruebasIntegracionPersistencia
         JuegoMesa juego2 = new JuegoMesa("Ajedrez", 2, "Clasico", 2, 4, 1, false, CategoriaJuego.TABLERO);
         for (int i = 0; i < 15; i++)
         {
-            juego2.agregarCopia(new CopiaJuegoPrestamo(EstadoJuego.NUEVO, false, juego2));
+            juego2.agregarCopia(new CopiaJuegoPrestamo(EstadoJuego.NUEVO, true, juego2));
         }
         cafe2.agregarJuegoCatalogo(juego2);
 

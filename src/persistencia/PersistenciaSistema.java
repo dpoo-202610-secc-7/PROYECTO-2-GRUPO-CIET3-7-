@@ -66,8 +66,12 @@ public class PersistenciaSistema
         escribirJuegosFavoritos(usuarios);
         escribirSolicitudesTurno(usuarios);
         escribirSugerencias();
+        escribirBonos(usuarios);     
+        escribirPremios(usuarios); 
         invalidarCache();
     }
+    
+    
 
     public void guardarCafe(Cafe cafe)
     {
@@ -165,6 +169,8 @@ public class PersistenciaSistema
         leerReservas();
         leerPrestamos();
         leerVentas();
+        leerBonos();      
+        leerPremios(); 
 
         cargado = true;
     }
@@ -1743,5 +1749,175 @@ public class PersistenciaSistema
         }
 
         return torneos;
+        
     }
+ // ── Bonos de descuento ────────────────────────────────────────────────
+
+    public void guardarBonos(List<Usuario> usuarios)
+    {
+        escribirBonos(usuarios);
+        invalidarCache();
+    }
+
+    public void cargarBonos()
+    {
+        if (!cargado)
+        {
+            cargarTodo();
+        }
+        leerBonos();
+    }
+
+    private void escribirBonos(List<Usuario> usuarios)
+    {
+        try (FileWriter fw = crear("bonos_descuento.txt"))
+        {
+            for (Usuario u : usuarios)
+            {
+                if (u instanceof Cliente)
+                {
+                    Cliente c = (Cliente) u;
+                    if (c.getBonoDescuentoGanado() > 0)
+                    {
+                        fw.write(safe(c.getLogin()) + ";" + c.getBonoDescuentoGanado() + "\n");
+                    }
+                }
+                else if (u instanceof Empleado)
+                {
+                    Empleado e = (Empleado) u;
+                    if (e.getBonoDescuentoGanado() > 0)
+                    {
+                        fw.write(safe(e.getLogin()) + ";" + e.getBonoDescuentoGanado() + "\n");
+                    }
+                }
+            }
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+    private void leerBonos()
+    {
+        File archivo = path("bonos_descuento.txt");
+        if (!archivo.exists())
+        {
+            return;
+        }
+
+        try (BufferedReader br = abrir(archivo))
+        {
+            String linea;
+            while ((linea = br.readLine()) != null)
+            {
+                linea = linea.trim();
+                if (linea.isEmpty())
+                {
+                    continue;
+                }
+
+                String[] p = linea.split(";", -1);
+                if (p.length >= 2)
+                {
+                    Usuario u = usuarioPorLogin(p[0]);
+                    double monto = Double.parseDouble(p[1]);
+
+                    if (u instanceof Cliente)
+                    {
+                        ((Cliente) u).setBonoDescuentoGanado(monto);
+                    }
+                    else if (u instanceof Empleado)
+                    {
+                        ((Empleado) u).setBonoDescuentoGanado(monto);
+                    }
+                }
+            }
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+    // ── Premios monetarios ────────────────────────────────────────────────
+
+    public void guardarPremios(List<Usuario> usuarios)
+    {
+        escribirPremios(usuarios);
+        invalidarCache();
+    }
+
+    public void cargarPremios()
+    {
+        if (!cargado)
+        {
+            cargarTodo();
+        }
+        leerPremios();
+    }
+
+    private void escribirPremios(List<Usuario> usuarios)
+    {
+        try (FileWriter fw = crear("premios_monetarios.txt"))
+        {
+            for (Usuario u : usuarios)
+            {
+                if (u instanceof Cliente)
+                {
+                    Cliente c = (Cliente) u;
+                    if (c.getPremioMonetarioPendiente() > 0)
+                    {
+                        fw.write(safe(c.getLogin()) + ";" + c.getPremioMonetarioPendiente() + "\n");
+                    }
+                }
+            }
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+    private void leerPremios()
+    {
+        File archivo = path("premios_monetarios.txt");
+        if (!archivo.exists())
+        {
+            return;
+        }
+
+        try (BufferedReader br = abrir(archivo))
+        {
+            String linea;
+            while ((linea = br.readLine()) != null)
+            {
+                linea = linea.trim();
+                if (linea.isEmpty())
+                {
+                    continue;
+                }
+
+                String[] p = linea.split(";", -1);
+                if (p.length >= 2)
+                {
+                    Usuario u = usuarioPorLogin(p[0]);
+                    if (u instanceof Cliente)
+                    {
+                        ((Cliente) u).setPremioMonetarioPendiente(Double.parseDouble(p[1]));
+                    }
+                }
+            }
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+    }
+    
+    
+    
+    
+    
+    
 }

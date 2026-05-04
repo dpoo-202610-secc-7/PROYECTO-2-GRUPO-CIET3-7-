@@ -42,6 +42,7 @@ public class SistemasDulcesDados
         List<Usuario> usuariosCargados = persistencia.cargarUsuarios();
         Cafe cafeCargado = persistencia.cargarCafe();
         List<SugerenciaPlatillo> sugsGuardadas = persistencia.cargarSugerencias();
+
         if (sugsGuardadas != null) {
             this.sugerencias = sugsGuardadas;
         }
@@ -60,6 +61,12 @@ public class SistemasDulcesDados
             cafe = cafeCargado;
         }
 
+        List<Torneo> torneosCargados = persistencia.cargarTorneos(cafe, usuarios);
+        if (torneosCargados != null)
+        {
+            cafe.setTorneos(torneosCargados);
+        }
+
         asegurarEstructuraMinima();
     }
 
@@ -70,8 +77,7 @@ public class SistemasDulcesDados
             persistencia.guardarUsuarios(usuarios);
             persistencia.guardarCafe(cafe);
             persistencia.guardarTorneos(cafe.getTorneos());
-            List<Torneo> torneosGuardados = persistencia.cargarTorneos(cafe, usuarios);
-            cafe.setTorneos(torneosGuardados);
+
         }
     }
 
